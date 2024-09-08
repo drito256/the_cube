@@ -1,5 +1,5 @@
 #source file/files
-OBJS = main.cpp glad.c stb_image.cpp
+OBJS = main.cpp camera.cpp cube.cpp glad.c stb_image.cpp
 
 #compiler
 CC = g++

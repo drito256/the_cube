@@ -8,13 +8,12 @@
 
 #include "../include/the_cube/stb_image.h"
 #include "../include/the_cube/shader.h"
+#include "../include/the_cube/camera.h"
+#include "../include/the_cube/constants.h"
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void framebuffer_size_callback(GLFWwindow* window, int width =  Screen::width, 
+                                                   int height = Screen::height);
 void processInput(GLFWwindow *window);
-
-// settings
-const unsigned int SCR_WIDTH = 720;
-const unsigned int SCR_HEIGHT = 480;
 
 int main()
 {
@@ -31,7 +30,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(Screen::width, Screen::height, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -48,7 +47,9 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    
     Shader ourShader("shaders/shader.vs", "shaders/shader.fs");
 
     float vertices[] = {
@@ -67,22 +68,23 @@ int main()
         0, 1, 3, // first triangle
         1, 2, 3,  // second triangle
         
-        4, 5, 6,
-        4, 6, 7,
+        6, 5, 4,
+        6, 4, 7,
 
-        0, 3, 7,
-        0, 4, 7,
+        3, 7, 4,
+        3, 4, 0,
 
-        1, 2, 6,
-        1, 5, 6,
+        1, 6, 2,
+        6, 1, 5,
 
-        1, 5, 4,
-        0, 1, 4,
+        1, 4, 5,
+        0, 4, 1,
 
         2, 6, 7,
-        2, 3, 7
+        2, 7, 3
     };
 
+  
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -98,10 +100,15 @@ int main()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
 
+    Camera c(glm::vec3(2,3,3), 45.f);
+    ourShader.use();
+    ourShader.setMat4("projection", c.get_projection_matrix());
+    
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
+    
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -110,6 +117,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         ourShader.use();
+        ourShader.setMat4("view", c.get_view_matrix());
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

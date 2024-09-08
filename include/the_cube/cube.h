@@ -7,21 +7,21 @@
 
 #include "../glm/glm.hpp"
 
-class Cube{
-    private:
-        std::array<glm::vec3, 8> m_vertices;
-        std::array<int, 36> m_indices;
+namespace the_cube{
+    class Cube{
+        private:
+            std::array<glm::vec3, 8> m_vertices;
+            std::array<int, 36> m_indices;
+            
+            unsigned int vbo; 
+            unsigned int vao; 
+            unsigned int ebo; 
+        // kasnije boja,tekstura ...
 
-        // vbo, vao, ebo
-    
-    // kasnije boja,tekstura ...
-
-    public:
-        Cube(std::array<glm::vec3,8> vertices, std::array<int,36> indices)
-            :m_vertices{vertices}
-            ,m_indices{indices}
-            {}
-        void rotate(int degrees);
-};
+        public:
+            Cube(std::array<glm::vec3,8> vertices, std::array<int,36> indices);
+            void rotate(int degrees);
+    };
+}
 
 #endif
