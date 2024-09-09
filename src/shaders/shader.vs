@@ -4,8 +4,9 @@ out vec3 color;
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 model;
 
 void main(){
     color = vec3(1,0,1);
-    gl_Position = projection * view * vec4(aPos,1.0f);
+    gl_Position = projection * view * model * vec4(aPos,1.0f);
 }

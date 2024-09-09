@@ -6,24 +6,42 @@
 
 #include "../glad/glad.h"
 #include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
+#include "constants.h"
 
 namespace the_cube{
+
+    enum class RotationDirection{
+        FORWARD,
+        BACKWARD,
+        LEFT,
+        RIGHT
+    };
+
     class Cube{
         private:
             std::array<glm::vec3, 8> m_vertices;
             std::array<int, 36> m_indices;
+
+            float a{0}; // edge length
+            glm::mat4 model_matrix{glm::mat4(1.f)}; // identity
             
-            unsigned int vbo = 0; 
-            unsigned int vao = 0; 
-            unsigned int ebo = 0; 
-        // kasnije boja,tekstura ...
+            unsigned int vbo; 
+            unsigned int vao; 
+            unsigned int ebo; 
+
+            // kasnije boja,tekstura ...
 
         public:
             Cube(std::array<glm::vec3,8> vertices, std::array<int,36> indices);
+            Cube(glm::vec3 position, double edge_length);
+
             void delete_buffers();
             void bind_vao();
+            void rotate(int degrees, RotationDirection rd);
+
             glm::vec3 get_position();
-            void rotate(int degrees);
+            glm::mat4 get_model_matrix();
     };
 }
 

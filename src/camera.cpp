@@ -12,7 +12,7 @@ glm::mat4 Camera::get_view_matrix(){
 
 glm::mat4 Camera::get_projection_matrix(){
       return glm::perspective(glm::radians(m_fov),
-                             (float)Screen::width/Screen::height, 0.01f, 500.f);
+                              static_cast<float>(Screen::width)/Screen::height, 0.1f, 100.f);
 }
 
 void Camera::update_position(){

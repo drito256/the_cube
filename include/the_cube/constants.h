@@ -2,7 +2,7 @@
 #define CONSTANTS
 
 namespace Screen{
-    constexpr unsigned int width = 720;
+    constexpr unsigned int width = 854;
     constexpr unsigned int height = 480;
 };
 

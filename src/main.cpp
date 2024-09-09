@@ -49,9 +49,9 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     
-    Shader ourShader("shaders/shader.vs", "shaders/shader.fs");
+    Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
     the_cube::Cube cube( // vertices
                     std::array{ glm::vec3(0.5f,  0.5f, 0.0f),
@@ -82,14 +82,14 @@ int main()
                                             2, 7, 3});
 
 
-
     Camera c(glm::vec3(2,3,3), 45.f);
-    ourShader.use();
-    ourShader.setMat4("projection", c.get_projection_matrix());
+    shader.use();
+    shader.setMat4("projection", c.get_projection_matrix());
     
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
+    cube.rotate(30,the_cube::RotationDirection::RIGHT);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -97,8 +97,9 @@ int main()
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ourShader.use();
-        ourShader.setMat4("view", c.get_view_matrix());
+        shader.use();
+        shader.setMat4("view", c.get_view_matrix());
+        shader.setMat4("model", cube.get_model_matrix());
 
         cube.bind_vao();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
