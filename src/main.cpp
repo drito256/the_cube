@@ -86,6 +86,7 @@ int main()
                                             2, 6, 7,
                                             2, 7, 3});
 */
+
     the_cube::Cube cube(glm::vec3(0.f),1);
     Camera c(glm::vec3(-2,3,3), 45.f);
     shader.use();

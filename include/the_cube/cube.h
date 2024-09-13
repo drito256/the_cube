@@ -34,7 +34,7 @@ namespace the_cube{
 
         public:
             Cube(std::array<glm::vec3,8> vertices, std::array<int,36> indices);
-            Cube(glm::vec3 position, double edge_length);
+            Cube(glm::vec3 position, float edge_length);
 
             void delete_buffers();
             void bind_vao();

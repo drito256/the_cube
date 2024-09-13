@@ -2,6 +2,8 @@
 
 // maybe a good idea to check if non-cube has been passed through vertices
 the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indices){
+    m_vertices = vertices;
+    m_indices = indices;
 
     // find length of edge regardless of vertices init order
     float max{vertices[0].x}, min{vertices[0].x};
@@ -39,7 +41,7 @@ the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indic
 
 // TODO: simpler way to construct a cube
 // position is center of the cube
-the_cube::Cube::Cube(glm::vec3 position, double edge_length){
+the_cube::Cube::Cube(glm::vec3 position, float edge_length){
     a = edge_length;
     model_matrix = glm::translate(model_matrix, position);
 
