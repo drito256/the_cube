@@ -33,6 +33,7 @@ namespace the_cube{
             // kasnije boja,tekstura ...
 
         public:
+            Cube();
             Cube(std::array<glm::vec3,8> vertices, std::array<int,36> indices);
             Cube(glm::vec3 position, float edge_length);
 

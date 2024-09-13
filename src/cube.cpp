@@ -1,5 +1,8 @@
 #include "../include/the_cube/cube.h"
 
+
+the_cube::Cube::Cube() : Cube(glm::vec3(0.f), 1.f){}
+
 // maybe a good idea to check if non-cube has been passed through vertices
 the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indices){
     m_vertices = vertices;
@@ -41,7 +44,7 @@ the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indic
 
 // TODO: simpler way to construct a cube
 // position is center of the cube
-the_cube::Cube::Cube(glm::vec3 position, float edge_length){
+the_cube::Cube::Cube(glm::vec3 position, float edge_length = 1.0f){
     a = edge_length;
     model_matrix = glm::translate(model_matrix, position);
 
