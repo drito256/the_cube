@@ -39,6 +39,7 @@ namespace the_cube{
             void delete_buffers();
             void bind_vao();
             void rotate(int degrees, RotationDirection rd);
+            void reset_position();
 
             glm::vec3 get_position();
             glm::mat4 get_model_matrix();

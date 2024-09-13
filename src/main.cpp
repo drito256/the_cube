@@ -14,7 +14,12 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width =  Screen::width, 
                                                    int height = Screen::height);
-void processInput(GLFWwindow *window);
+void processInput(GLFWwindow *window, the_cube::Cube& cube);
+
+int forward_rotation=0;
+int left_rotation=0;
+int right_rotation=0;
+int backward_rotation=0;
 
 int main()
 {
@@ -49,19 +54,19 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
-    the_cube::Cube cube( // vertices
-                    std::array{ glm::vec3(0.5f,  0.5f, 0.0f),
-                                 glm::vec3(0.5f, -0.5f, 0.0f),
-                                 glm::vec3(-0.5f, -0.5f, 0.0f),
-                                 glm::vec3(-0.5f,  0.5f, 0.0f),
-                                 glm::vec3(0.5f,  0.5f, 1.0f),
-                                 glm::vec3(0.5f, -0.5f, 1.0f),
-                                 glm::vec3(-0.5f, -0.5f, 1.0f),
-                                 glm::vec3(-0.5f,  0.5f, 1.0f)},
+    /*the_cube::Cube cube( // vertices
+                    std::array{ glm::vec3(0.5f,  0.5f, -0.5f),
+                                 glm::vec3(0.5f, -0.5f, -0.5f),
+                                 glm::vec3(-0.5f, -0.5f, -0.5f),
+                                 glm::vec3(-0.5f,  0.5f, -0.5f),
+                                 glm::vec3(0.5f,  0.5f, 0.5f),
+                                 glm::vec3(0.5f, -0.5f, 0.5f),
+                                 glm::vec3(-0.5f, -0.5f, 0.5f),
+                                 glm::vec3(-0.5f,  0.5f, 0.5f)},
                          // indices 
                                  std::array{0, 1, 3,
                                             1, 2, 3, 
@@ -80,21 +85,21 @@ int main()
 
                                             2, 6, 7,
                                             2, 7, 3});
-
-
-    Camera c(glm::vec3(2,3,3), 45.f);
+*/
+    the_cube::Cube cube(glm::vec3(0.f),1);
+    Camera c(glm::vec3(-2,3,3), 45.f);
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
     
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
-    cube.rotate(30,the_cube::RotationDirection::RIGHT);
+    //cube.rotate(30,the_cube::RotationDirection::LEFT);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window);
+        processInput(window, cube);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
@@ -113,10 +118,29 @@ int main()
     return 0;
 }
 
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, the_cube::Cube& cube)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+        right_rotation++;
+        cube.rotate(1, the_cube::RotationDirection::RIGHT);
+    }
+    else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+        left_rotation++;
+        cube.rotate(1, the_cube::RotationDirection::LEFT);
+    }
+
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+        forward_rotation++;
+        cube.rotate(1, the_cube::RotationDirection::FORWARD);
+    }
+    else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+        backward_rotation++;
+        cube.rotate(1, the_cube::RotationDirection::BACKWARD);
+    }
+    
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
