@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <array>
+#include <algorithm>
 
 #include "../glad/glad.h"
 #include "../glm/glm.hpp"
@@ -41,8 +42,10 @@ namespace the_cube{
             void bind_vao();
             void rotate(int degrees, RotationDirection rd);
             void reset_position();
+            void update_position(glm::vec3 pos);
 
             glm::vec3 get_position();
+            glm::vec3 get_rotation_axis(RotationDirection rd);
             glm::mat4 get_model_matrix();
     };
 }

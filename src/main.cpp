@@ -16,11 +16,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width =  Screen::width,
                                                    int height = Screen::height);
 void processInput(GLFWwindow *window, the_cube::Cube& cube);
 
-int forward_rotation=0;
-int left_rotation=0;
-int right_rotation=0;
-int backward_rotation=0;
-
 int main()
 {
     // glfw: initialize and configure
@@ -58,7 +53,7 @@ int main()
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
-    /*the_cube::Cube cube( // vertices
+/*    the_cube::Cube cube( // vertices
                     std::array{ glm::vec3(0.5f,  0.5f, -0.5f),
                                  glm::vec3(0.5f, -0.5f, -0.5f),
                                  glm::vec3(-0.5f, -0.5f, -0.5f),
@@ -84,11 +79,11 @@ int main()
                                             0, 4, 1,
 
                                             2, 6, 7,
-                                            2, 7, 3});
-*/
+                                            2, 7, 3});*/
 
-    the_cube::Cube cube(glm::vec3(0.f),1);
-    Camera c(glm::vec3(-2,3,3), 45.f);
+
+    the_cube::Cube cube(glm::vec3(.0f), 1.f);
+    Camera c(glm::vec3(-3,5,5), 45.f);
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
     
@@ -104,9 +99,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader.use();
-        shader.setMat4("view", c.get_view_matrix());
         shader.setMat4("model", cube.get_model_matrix());
-
+        shader.setMat4("view", c.get_view_matrix());
         cube.bind_vao();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
@@ -125,20 +119,16 @@ void processInput(GLFWwindow *window, the_cube::Cube& cube)
         glfwSetWindowShouldClose(window, true);
 
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        right_rotation++;
         cube.rotate(1, the_cube::RotationDirection::RIGHT);
     }
     else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        left_rotation++;
         cube.rotate(1, the_cube::RotationDirection::LEFT);
     }
 
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        forward_rotation++;
         cube.rotate(1, the_cube::RotationDirection::FORWARD);
     }
     else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        backward_rotation++;
         cube.rotate(1, the_cube::RotationDirection::BACKWARD);
     }
     

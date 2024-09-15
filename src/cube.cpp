@@ -42,23 +42,23 @@ the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indic
     glEnableVertexAttribArray(0);
 }
 
-// TODO: simpler way to construct a cube
 // position is center of the cube
 the_cube::Cube::Cube(glm::vec3 position, float edge_length = 1.0f){
     a = edge_length;
+    model_matrix = glm::mat4(1.0f);
     model_matrix = glm::translate(model_matrix, position);
 
     // lower 4 vertices
-    m_vertices[0] = position - glm::vec3(edge_length/2);
-    m_vertices[1] = position - glm::vec3(edge_length/2, edge_length/2, -edge_length/2);
-    m_vertices[2] = position - glm::vec3(-edge_length/2, edge_length/2, -edge_length/2);
-    m_vertices[3] = position - glm::vec3(-edge_length/2, edge_length/2, edge_length/2);
+    m_vertices[0] = -glm::vec3(edge_length/2);
+    m_vertices[1] = -glm::vec3(edge_length/2, edge_length/2, -edge_length/2);
+    m_vertices[2] = -glm::vec3(-edge_length/2, edge_length/2, -edge_length/2);
+    m_vertices[3] = -glm::vec3(-edge_length/2, edge_length/2, edge_length/2);
 
     // upper 4
-    m_vertices[4] = position + glm::vec3(edge_length/2);
-    m_vertices[5] = position + glm::vec3(edge_length/2, edge_length/2, -edge_length/2);
-    m_vertices[6] = position + glm::vec3(-edge_length/2, edge_length/2, -edge_length/2);
-    m_vertices[7] = position + glm::vec3(-edge_length/2, edge_length/2, edge_length/2);
+    m_vertices[4] =  glm::vec3(edge_length/2);
+    m_vertices[5] =  glm::vec3(edge_length/2, edge_length/2, -edge_length/2);
+    m_vertices[6] =  glm::vec3(-edge_length/2, edge_length/2, -edge_length/2);
+    m_vertices[7] =  glm::vec3(-edge_length/2, edge_length/2, edge_length/2);
 
     // order is important because of face culling
     m_indices = {
@@ -98,7 +98,9 @@ the_cube::Cube::Cube(glm::vec3 position, float edge_length = 1.0f){
 }
 
 glm::vec3 the_cube::Cube::get_position(){
-    return glm::vec3(model_matrix[3][0], model_matrix[3][1], model_matrix[3][2]);
+    return glm::vec3(model_matrix[3][0],
+                     model_matrix[3][1],
+                     model_matrix[3][2]);
 }
 
 void the_cube::Cube::reset_position(){
@@ -107,52 +109,52 @@ void the_cube::Cube::reset_position(){
     model_matrix[3][2] = 0.f;
 }
 
+void the_cube::Cube::update_position(glm::vec3 pos){
+    model_matrix[3][0] += pos.x;
+    model_matrix[3][1] += pos.y;
+    model_matrix[3][2] += pos.z;
+}
+
 glm::mat4 the_cube::Cube::get_model_matrix(){
     return model_matrix;
 }
 
-// TODO: fix right and backward rotation
 void the_cube::Cube::rotate(int degrees, the_cube::RotationDirection rd){
     float angle = glm::radians(static_cast<float>(degrees));
 
-    glm::mat4 rotation_translation = glm::mat4(1.0f);
-    glm::mat4 rot = glm::mat4(1.0f);
+    glm::vec3 axis;
+    glm::vec3 pos = get_position();
+    update_position(-pos);
+    glm::vec3 direction = glm::vec3(0.f);
 
-    // depends on what edge we are rotating it around
+    float magnitude = 0.1f; // za sada treba updejtat s sine func
+
     switch(rd){
-        case the_cube::RotationDirection::RIGHT:
-        rotation_translation = glm::translate(rotation_translation, glm::vec3(0
-                                                               ,static_cast<float>(a)/2
-                                                               ,-static_cast<float>(a)/2));
-        rot = glm::rotate(rot, angle, glm::vec3(1,0,0));
-        break;
-        case the_cube::RotationDirection::LEFT:
-        rotation_translation = glm::translate(rotation_translation, glm::vec3(0
-                                                               ,static_cast<float>(a)/2,
-                                                               static_cast<float>(a)/2));
-        rot = glm::rotate(rot, angle, glm::vec3(1,0,0));
-        break;
         case the_cube::RotationDirection::FORWARD:
-        rotation_translation = glm::translate(rotation_translation, glm::vec3(-static_cast<float>(a)/2
-                                                               ,static_cast<float>(a)/2,0));
-        rot = glm::rotate(rot, angle, glm::vec3(0,0,1));
+        axis = glm::vec3(0,0,-1.f);
+        direction = glm::vec3(1.0f,0.0f,0.0f);
         break;
         case the_cube::RotationDirection::BACKWARD:
-        rotation_translation = glm::translate(rotation_translation,  glm::vec3(static_cast<float>(a)/2
-                                                               ,static_cast<float>(a)/2,0));
-        rot = glm::rotate(rot, angle, glm::vec3(0,0,1));
+        axis = glm::vec3(0,0,1.f);
+        direction = glm::vec3(-1.0f,0.0f,0.0f);
+       break;
+        case the_cube::RotationDirection::LEFT:
+        axis = glm::vec3(-1.0f,0,0.f);
+        direction = glm::vec3(0.0f,0.0f,-1.0f);
+        break;
+        case the_cube::RotationDirection::RIGHT:
+        axis = glm::vec3(1.0f,0,0.f);
+        direction = glm::vec3(0.0f,0.0f,1.0f);
         break;
     }
-    glm::vec3 world_translation = get_position();
-    reset_position();
 
-    // translacija za rotaciju oko odredene osi
-    model_matrix *= rotation_translation;
-    model_matrix *= rot;
-//    model_matrix *= glm::inverse(rotation_translation);
-
-//    model_matrix = glm::translate(model_matrix, world_translation);
+    model_matrix = glm::rotate(model_matrix, angle, axis);
+    update_position(pos);
+    update_position(direction * magnitude);
 }
+
+
+
 
 void the_cube::Cube::bind_vao(){
     glBindVertexArray(vao);
