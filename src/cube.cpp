@@ -43,10 +43,10 @@ the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indic
 }
 
 // position is center of the cube
-the_cube::Cube::Cube(glm::vec3 position, float edge_length = 1.0f){
+the_cube::Cube::Cube(glm::vec3 position, float edge_length){
     a = edge_length;
     model_matrix = glm::mat4(1.0f);
-    model_matrix = glm::translate(model_matrix, position);
+    update_position(position);
 
     // lower 4 vertices
     m_vertices[0] = -glm::vec3(edge_length/2);
@@ -103,10 +103,10 @@ glm::vec3 the_cube::Cube::get_position(){
                      model_matrix[3][2]);
 }
 
-void the_cube::Cube::reset_position(){
-    model_matrix[3][0] = 0.f;
-    model_matrix[3][1] = 0.f;
-    model_matrix[3][2] = 0.f;
+void the_cube::Cube::reset_position(glm::vec3 pos){
+    model_matrix[3][0] = pos.x;
+    model_matrix[3][1] = pos.y;
+    model_matrix[3][2] = pos.z;
 }
 
 void the_cube::Cube::update_position(glm::vec3 pos){
@@ -126,9 +126,8 @@ void the_cube::Cube::rotate(int degrees, the_cube::RotationDirection rd){
     glm::vec3 pos = get_position();
     update_position(-pos);
     glm::vec3 direction = glm::vec3(0.f);
-
-    float magnitude = 0.1f; // za sada treba updejtat s sine func
-
+    
+    float translation_distance = (a/2) * angle;
     switch(rd){
         case the_cube::RotationDirection::FORWARD:
         axis = glm::vec3(0,0,-1.f);
@@ -149,12 +148,80 @@ void the_cube::Cube::rotate(int degrees, the_cube::RotationDirection rd){
     }
 
     model_matrix = glm::rotate(model_matrix, angle, axis);
-    update_position(pos);
-    update_position(direction * magnitude);
+    update_position(pos); // reset position to old coords
+    update_position(translation_distance * direction);
+}
+
+void the_cube::Cube::roll(int degrees, the_cube::RotationDirection rd){
+    float angle = glm::radians(static_cast<float>(degrees));
+    
+    glm::vec3 axis;
+    glm::vec3 pos = get_position();
+    update_position(-pos);
+    glm::vec3 direction = glm::vec3(0.f);
+    //float translation_distance = (a/2) * angle;
+
+    std::array<glm::vec3, 8> vertices{m_vertices};
+    for(int i=0;i<vertices.size();i++){
+        vertices[i] = glm::mat3(model_matrix) * vertices[i];
+    }
+
+    auto yxz_sort = [](const glm::vec3& a, const glm::vec3& b){
+        if(a.y != b.y) return a.y < b.y;
+        if(a.x != b.x) return a.x > b.x;
+
+        return a.z < b.z;
+    };
+    // extracting angles;
+    //int a1 = atan2(model_matrix[1][2],model_matrix[2][2]) * 180/3.1415926;
+    //int a2 = asin(-model_matrix[0][2]) * 180/3.1415926;
+    //int a3 = atan2(model_matrix[0][1], model_matrix[0][0]) * 180/3.1415926;
+    std::sort(vertices.begin(), vertices.end(), yxz_sort);
+    std::array<glm::vec3, 4> base_edges{vertices[0], vertices[1], vertices[2], vertices[3]};
+
+    switch(rd){
+        case the_cube::RotationDirection::FORWARD:
+        model_matrix = rotateAroundLine(model_matrix, base_edges[1], base_edges[0], angle);
+        break;
+        case the_cube::RotationDirection::BACKWARD:
+        model_matrix = rotateAroundLine(model_matrix, base_edges[0], base_edges[1], angle);
+       break;
+        case the_cube::RotationDirection::LEFT:
+        model_matrix = rotateAroundLine(model_matrix, base_edges[0], base_edges[2], angle);
+        break;
+        case the_cube::RotationDirection::RIGHT:
+        model_matrix = rotateAroundLine(model_matrix, base_edges[1], base_edges[3], angle);
+        break;
+    }
+
+    update_position(pos); // reset position to old coords
+    //std::cout << model_matrix[3][1] << std::endl;
 }
 
 
+glm::mat4 the_cube::Cube::rotateAroundLine(const glm::mat4& modelMatrix, const glm::vec3& point1, const glm::vec3& point2, float angle) {
+    // Calculate the direction vector (axis of rotation) and normalize it
+    glm::vec3 axis = glm::normalize(point2 - point1);
+    
+    // Step 1: Translate the model to align the rotation axis with the origin
+    glm::mat4 translationToOrigin = glm::translate(glm::mat4(1.0f), -point1);
+    
+    // Step 2: Rotate around the axis (the line between point1 and point2)
+    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, axis);
+    
+    // Step 3: Translate the model back to its original position
+    glm::mat4 translationBack = glm::translate(glm::mat4(1.0f), point1);
+    
+    // Combine the transformations: translate to origin, rotate, then translate back
+    glm::mat4 result = translationBack * rotation * translationToOrigin * modelMatrix;
+    
+    return result;
+}
 
+void the_cube::Cube::render(){
+    bind_vao();
+    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+}
 
 void the_cube::Cube::bind_vao(){
     glBindVertexArray(vao);

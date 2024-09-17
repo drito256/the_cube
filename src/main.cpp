@@ -53,37 +53,8 @@ int main()
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
 
-/*    the_cube::Cube cube( // vertices
-                    std::array{ glm::vec3(0.5f,  0.5f, -0.5f),
-                                 glm::vec3(0.5f, -0.5f, -0.5f),
-                                 glm::vec3(-0.5f, -0.5f, -0.5f),
-                                 glm::vec3(-0.5f,  0.5f, -0.5f),
-                                 glm::vec3(0.5f,  0.5f, 0.5f),
-                                 glm::vec3(0.5f, -0.5f, 0.5f),
-                                 glm::vec3(-0.5f, -0.5f, 0.5f),
-                                 glm::vec3(-0.5f,  0.5f, 0.5f)},
-                         // indices 
-                                 std::array{0, 1, 3,
-                                            1, 2, 3, 
-                                                
-                                            6, 5, 4,
-                                            6, 4, 7,
-
-                                            3, 7, 4,
-                                            3, 4, 0,
-
-                                            1, 6, 2,
-                                            6, 1, 5,
-
-                                            1, 4, 5,
-                                            0, 4, 1,
-
-                                            2, 6, 7,
-                                            2, 7, 3});*/
-
-
     the_cube::Cube cube(glm::vec3(.0f), 1.f);
-    Camera c(glm::vec3(-3,5,5), 45.f);
+    Camera c(glm::vec3(1.5f,3.f,5), 45.f);
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
     
@@ -101,8 +72,7 @@ int main()
         shader.use();
         shader.setMat4("model", cube.get_model_matrix());
         shader.setMat4("view", c.get_view_matrix());
-        cube.bind_vao();
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        cube.render();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -119,17 +89,17 @@ void processInput(GLFWwindow *window, the_cube::Cube& cube)
         glfwSetWindowShouldClose(window, true);
 
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        cube.rotate(1, the_cube::RotationDirection::RIGHT);
+        cube.roll(1, the_cube::RotationDirection::RIGHT);
     }
     else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        cube.rotate(1, the_cube::RotationDirection::LEFT);
+        cube.roll(1, the_cube::RotationDirection::LEFT);
     }
 
     if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        cube.rotate(1, the_cube::RotationDirection::FORWARD);
+        cube.roll(1, the_cube::RotationDirection::FORWARD);
     }
     else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        cube.rotate(1, the_cube::RotationDirection::BACKWARD);
+        cube.roll(1, the_cube::RotationDirection::BACKWARD);
     }
     
 }
