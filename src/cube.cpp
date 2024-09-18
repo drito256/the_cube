@@ -3,6 +3,10 @@
 
 the_cube::Cube::Cube() : Cube(glm::vec3(0.f), 1.f){}
 
+the_cube::Cube::~Cube(){
+//    delete_buffers();
+}
+
 // maybe a good idea to check if non-cube has been passed through vertices
 the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indices){
     m_vertices = vertices;
@@ -40,6 +44,8 @@ the_cube::Cube::Cube(std::array<glm::vec3, 8> vertices, std::array<int,36> indic
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
     glEnableVertexAttribArray(0);
+
+    scale(0.5f);
 }
 
 // position is center of the cube
@@ -95,6 +101,8 @@ the_cube::Cube::Cube(glm::vec3 position, float edge_length){
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
     glEnableVertexAttribArray(0);
+
+    scale(0.5f);
 }
 
 glm::vec3 the_cube::Cube::get_position(){
@@ -152,6 +160,7 @@ void the_cube::Cube::rotate(int degrees, the_cube::RotationDirection rd){
     update_position(translation_distance * direction);
 }
 
+// will have to roll it around edges of tiles, not around its own base
 void the_cube::Cube::roll(int degrees, the_cube::RotationDirection rd){
     float angle = glm::radians(static_cast<float>(degrees));
     
@@ -172,25 +181,40 @@ void the_cube::Cube::roll(int degrees, the_cube::RotationDirection rd){
 
         return a.z < b.z;
     };
-    // extracting angles;
-    //int a1 = atan2(model_matrix[1][2],model_matrix[2][2]) * 180/3.1415926;
-    //int a2 = asin(-model_matrix[0][2]) * 180/3.1415926;
-    //int a3 = atan2(model_matrix[0][1], model_matrix[0][0]) * 180/3.1415926;
+    auto yzx_sort = [](const glm::vec3& a, const glm::vec3& b){
+        if(a.y != b.y) return a.y < b.y;
+        if(a.x != b.x) return a.z < b.z;
+
+        return a.x > b.x;
+    };
+
     std::sort(vertices.begin(), vertices.end(), yxz_sort);
     std::array<glm::vec3, 4> base_edges{vertices[0], vertices[1], vertices[2], vertices[3]};
 
     switch(rd){
         case the_cube::RotationDirection::FORWARD:
+        std::sort(vertices.begin(), vertices.end(), yxz_sort);
+        base_edges = {vertices[0], vertices[1], vertices[2], vertices[3]};
+
         model_matrix = rotateAroundLine(model_matrix, base_edges[1], base_edges[0], angle);
         break;
         case the_cube::RotationDirection::BACKWARD:
+        std::sort(vertices.begin(), vertices.end(), yxz_sort);
+        base_edges = {vertices[0], vertices[1], vertices[2], vertices[3]};
+        
         model_matrix = rotateAroundLine(model_matrix, base_edges[0], base_edges[1], angle);
        break;
         case the_cube::RotationDirection::LEFT:
-        model_matrix = rotateAroundLine(model_matrix, base_edges[0], base_edges[2], angle);
+        std::sort(vertices.begin(), vertices.end(), yzx_sort);
+        base_edges = {vertices[0], vertices[1], vertices[2], vertices[3]};
+        
+        model_matrix = rotateAroundLine(model_matrix, base_edges[1], base_edges[0], angle);
         break;
         case the_cube::RotationDirection::RIGHT:
-        model_matrix = rotateAroundLine(model_matrix, base_edges[1], base_edges[3], angle);
+        std::sort(vertices.begin(), vertices.end(), yzx_sort);
+        base_edges = {vertices[0], vertices[1], vertices[2], vertices[3]};
+        
+        model_matrix = rotateAroundLine(model_matrix, base_edges[0], base_edges[1], angle);
         break;
     }
 
@@ -216,6 +240,10 @@ glm::mat4 the_cube::Cube::rotateAroundLine(const glm::mat4& modelMatrix, const g
     glm::mat4 result = translationBack * rotation * translationToOrigin * modelMatrix;
     
     return result;
+}
+
+void the_cube::Cube::scale(float factor){
+    model_matrix = glm::scale(model_matrix, glm::vec3(factor));
 }
 
 void the_cube::Cube::render(){

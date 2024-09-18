@@ -10,6 +10,7 @@
 #include "../include/the_cube/shader.h"
 #include "../include/the_cube/camera.h"
 #include "../include/the_cube/cube.h"
+#include "../include/the_cube/tile.h"
 #include "../include/the_cube/constants.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width =  Screen::width, 
@@ -52,13 +53,28 @@ int main()
     glEnable(GL_CULL_FACE);
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
+    Shader tile_shader("shaders/tile_shader.vs", "shaders/tile_shader.fs");
 
     the_cube::Cube cube(glm::vec3(.0f), 1.f);
     Camera c(glm::vec3(1.5f,3.f,5), 45.f);
+    the_cube::Tile tile(std::array<glm::vec3, 6>{
+                        glm::vec3(0.25f,0.f,-0.25f),                         
+                        glm::vec3(-0.25f,0.f,-0.25f),                         
+                        glm::vec3(0.25f,0.f,0.25f),                         
+
+                        glm::vec3(-0.25f,0.f,-0.25f),                         
+                        glm::vec3(-0.25f,0.f,0.25f),                         
+                        glm::vec3(0.25f,0.f,0.25f)}
+                        );
+
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
-    
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    tile_shader.use();
+    tile_shader.setMat4("projection", c.get_projection_matrix());
+
+
+
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
     //cube.rotate(30,the_cube::RotationDirection::LEFT);
@@ -73,12 +89,17 @@ int main()
         shader.setMat4("model", cube.get_model_matrix());
         shader.setMat4("view", c.get_view_matrix());
         cube.render();
+       
+        tile_shader.use();
+        tile_shader.setVec3("tile_color", tile.get_color());
+        tile_shader.setMat4("view", c.get_view_matrix());
+        tile.render();
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    cube.delete_buffers();
+//    cube.delete_buffers();
     glfwTerminate();
     return 0;
 }
