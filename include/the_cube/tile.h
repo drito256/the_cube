@@ -15,12 +15,14 @@ namespace the_cube{
             unsigned int vbo;
 
             glm::vec3 color;
+            float tile_length = 0.5f;
 
             void bind_vao();
 
 
         public:
             Tile(std::array<glm::vec3, 6> vertices);
+            Tile(glm::vec3 pos, glm::vec3 angle_vector = glm::vec3(1,0,0));
 
             void render();
             glm::vec3 get_color();
