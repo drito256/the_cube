@@ -46,7 +46,7 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
     Shader tile_shader("shaders/tile_shader.vs", "shaders/tile_shader.fs");
@@ -62,7 +62,7 @@ int main()
                         glm::vec3(-0.25f,0.f,0.25f),                         
                         glm::vec3(0.25f,0.f,0.25f)}
                         );*/
-    the_cube::Tile tile(glm::vec3(0.f,-0.25f,0.f), glm::vec3(1.0f,0.0f,0.0f));
+    the_cube::Tile tile(glm::vec3(0.f,-0.25f,0.f), glm::vec3(3.0f,-2.0f,0.0f));
 
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
