@@ -8,6 +8,7 @@
 #include "../include/the_cube/cube.h"
 #include "../include/the_cube/tile.h"
 #include "../include/the_cube/constants.h"
+#include "../include/the_cube/coord.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width =  Screen::width, 
                                                    int height = Screen::height);
@@ -46,23 +47,16 @@ int main()
         return -1;
     }
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     
     Shader shader("shaders/shader.vs", "shaders/shader.fs");
     Shader tile_shader("shaders/tile_shader.vs", "shaders/tile_shader.fs");
 
     the_cube::Cube cube(glm::vec3(.0f), 1.f);
     Camera c(glm::vec3(1.5f,3.f,5), 45.f);
-/*    the_cube::Tile tile(std::array<glm::vec3, 6>{
-                        glm::vec3(0.25f,0.f,-0.25f),                         
-                        glm::vec3(-0.25f,0.f,-0.25f),                         
-                        glm::vec3(0.25f,0.f,0.25f),                         
-
-                        glm::vec3(-0.25f,0.f,-0.25f),                         
-                        glm::vec3(-0.25f,0.f,0.25f),                         
-                        glm::vec3(0.25f,0.f,0.25f)}
-                        );*/
     the_cube::Tile tile(glm::vec3(0.f,-0.25f,0.f), glm::vec3(3.0f,-2.0f,0.0f));
+
+    coordinate_sys coord;
 
     shader.use();
     shader.setMat4("projection", c.get_projection_matrix());
@@ -90,6 +84,9 @@ int main()
         tile_shader.setVec3("tile_color", tile.get_color());
         tile_shader.setMat4("view", c.get_view_matrix());
         tile.render();
+
+        coord.bind_vao();
+        coord.render();
 
 
         glfwSwapBuffers(window);
